@@ -26,9 +26,13 @@
         </div>
     </section>
 
+    <div id="statusMessageContainer" class="hidden my-4 mx-auto max-w-2xl p-4 rounded-lg text-center" style="display: none;">
+        <!-- Message will be inserted here by JavaScript -->
+    </div>
+
     <section class="registration-section">
         <div class="container">
-            <form action="#" method="POST" class="form-container">
+            <form action="register_handler.php" method="POST" class="form-container" enctype="multipart/form-data">
                 
                 <h3>| Personal information</h3>
                 <div class="form-row">
@@ -99,11 +103,12 @@
                 </div>
                 
                 <h3>| CV Upload & Description</h3>
-                <div class="upload-box">
+                <div class="upload-box"  id="dropArea">
                     <div class="upload-icon"><span class="material-icons">cloud_upload</span></div>
-                    <p>Choose file or drag and drop here</p>
+                    <p>Choose file or drag and drop here (PDF, DOCX Max: 5MB)</p>
                     <label for="cv_file" class="btn btn-choose-file">Choose File</label>
-                    <input type="file" id="cv_file" name="cv_file" style="display:none;">
+                    <input type="file" id="cv_file" name="cv_file" accept=".pdf,.doc,.docx" style="display:none;">
+                    <div id="fileNameDisplay"></div>
                 </div>
                 
                 <div class="form-field">
@@ -125,5 +130,134 @@
     </footer>
 
 </body>
+<script>
+    /**
+ * Script to handle form submission status messages after redirection.
+ * It reads the 'status' parameter from the URL (?status=success or ?status=error),
+ * displays a corresponding message box, and cleans the URL history.
+ */
+function getQueryParameter(name) {
+    // Escapes special characters in the parameter name
+    name = name.replace(/[\[\]]/g, '\\$&');
+    // Regex to find the parameter in the URL
+    var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+        results = regex.exec(window.location.href);
+    
+    if (!results) return null;
+    if (!results[2]) return '';
+    
+    // Decode the URL component before returning
+    return decodeURIComponent(results[2].replace(/\+/g, ' '));
+}
+
+function displaySubmissionStatus() {
+    const status = getQueryParameter('status');
+    const container = document.getElementById('statusMessageContainer');
+    
+    // Ensure the required HTML container exists
+    if (!container) return; 
+
+    let message = '';
+    let bgColor = '';
+    let textColor = '';
+
+    // Check the status provided by the PHP redirect
+    if (status === 'success') {
+        // You can fetch the name if you passed it in the redirect, 
+        // but for now we use a generic placeholder.
+        message = '✅ Thank you! You have been successfully registered.';
+        bgColor = '#d4edda'; // Light green background
+        textColor = '#155724'; // Dark green text
+    } else if (status === 'error') {
+        message = '❌ Submission Failed. There was an error sending your message. Please try again.';
+        bgColor = '#f8d7da'; // Light red background
+        textColor = '#721c24'; // Dark red text
+    } else {
+        return; // No relevant status parameter found
+    }
+
+    // Apply styles and display the message
+    container.innerHTML = message;
+    container.style.backgroundColor = bgColor;
+    container.style.color = textColor;
+    container.style.padding = '1rem';
+    container.style.display = 'block';
+
+    // Quantitative UX Improvement: Clean up the URL
+    // This removes the ?status=... from the address bar after the user sees the message.
+    if (window.history.replaceState) {
+        const cleanUrl = window.location.href.split('?')[0];
+        window.history.replaceState({path: cleanUrl}, '', cleanUrl);
+    }
+}
+
+// Execute the function when the page finishes loading
+window.onload = displaySubmissionStatus;
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const dropArea = document.getElementById('dropArea');
+        const fileInput = document.getElementById('cv_file');
+        const fileNameDisplay = document.getElementById('fileNameDisplay');
+        const chooseFileButton = document.querySelector('.btn-choose-file');
+
+        // Function to update the file name display
+        function updateFileName(file) {
+            if (file) {
+                fileNameDisplay.textContent = `Selected File: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
+                dropArea.classList.add('drag-over'); // Keep it highlighted when file is selected
+            } else {
+                fileNameDisplay.textContent = '';
+                dropArea.classList.remove('drag-over');
+            }
+        }
+
+        // 1. Handle explicit file selection
+        fileInput.addEventListener('change', (e) => {
+            updateFileName(e.target.files[0]);
+        });
+
+        // Make the 'Choose File' button label click the hidden input
+        chooseFileButton.addEventListener('click', (e) => {
+            e.preventDefault(); // Prevent button from submitting the form
+            fileInput.click();
+        });
+
+        // --- Drag and Drop Handlers ---
+
+        // Prevent default drag behaviors
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        // Highlight drop area when item is dragged over it
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, () => dropArea.classList.add('drag-over'), false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, () => dropArea.classList.remove('drag-over'), false);
+        });
+
+        // Handle dropped files
+        dropArea.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+
+            // Clear any existing files
+            fileInput.files = files; 
+
+            // Update display (only show the first file if multiple were dropped)
+            updateFileName(files[0]);
+        }
+    });
+</script>
 <script src="script.js"></script>
 </html>
