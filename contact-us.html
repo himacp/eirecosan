@@ -10,6 +10,70 @@
     
     
 </head>
+<script>
+    /**
+ * Script to handle form submission status messages after redirection.
+ * It reads the 'status' parameter from the URL (?status=success or ?status=error),
+ * displays a corresponding message box, and cleans the URL history.
+ */
+function getQueryParameter(name) {
+    // Escapes special characters in the parameter name
+    name = name.replace(/[\[\]]/g, '\\$&');
+    // Regex to find the parameter in the URL
+    var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+        results = regex.exec(window.location.href);
+    
+    if (!results) return null;
+    if (!results[2]) return '';
+    
+    // Decode the URL component before returning
+    return decodeURIComponent(results[2].replace(/\+/g, ' '));
+}
+
+function displaySubmissionStatus() {
+    const status = getQueryParameter('status');
+    const container = document.getElementById('statusMessageContainer');
+    
+    // Ensure the required HTML container exists
+    if (!container) return; 
+
+    let message = '';
+    let bgColor = '';
+    let textColor = '';
+
+    // Check the status provided by the PHP redirect
+    if (status === 'success') {
+        // You can fetch the name if you passed it in the redirect, 
+        // but for now we use a generic placeholder.
+        message = '✅ Thank you! Your message was successfully delivered.';
+        bgColor = '#d4edda'; // Light green background
+        textColor = '#155724'; // Dark green text
+    } else if (status === 'error') {
+        message = '❌ Submission Failed. There was an error sending your message. Please try again.';
+        bgColor = '#f8d7da'; // Light red background
+        textColor = '#721c24'; // Dark red text
+    } else {
+        return; // No relevant status parameter found
+    }
+
+    // Apply styles and display the message
+    container.innerHTML = message;
+    container.style.backgroundColor = bgColor;
+    container.style.color = textColor;
+    container.style.padding = '1rem';
+    container.style.display = 'block';
+
+    // Quantitative UX Improvement: Clean up the URL
+    // This removes the ?status=... from the address bar after the user sees the message.
+    if (window.history.replaceState) {
+        const cleanUrl = window.location.href.split('?')[0];
+        window.history.replaceState({path: cleanUrl}, '', cleanUrl);
+    }
+}
+
+// Execute the function when the page finishes loading
+window.onload = displaySubmissionStatus;
+</script>
 <body>
 
     <header>
@@ -49,6 +113,10 @@
                         Send Message
                     </button>
                 </form>
+            </div>
+
+            <div id="statusMessageContainer" class="hidden my-4 mx-auto max-w-2xl p-4 rounded-lg text-center" style="display: none;">
+                <!-- Message will be inserted here by JavaScript -->
             </div>
             
             <div class="contact-details-card">

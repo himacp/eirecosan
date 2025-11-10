@@ -13,12 +13,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // 3. Define the email details
     $to = "bcgowtham17@gmail.com"; // CHANGE THIS to your business email
-    $subject = "New Contact Form Submission on " . $subject . $name;
+    $redirect_url    = "http://eirecosan.ie/contact-us.html?status=success";
+    $subject = "New Contact Form on " . $subject . "  by " . $name;
     
-    $body = "Name: " . $name . "\n";
-    $body .= "Email: " . $email . "\n";
-    $body .= "Subject: " . $subject . "\n";
-    $body .= "Message: " . $message . "\n";
+    $body = "Name: " . $name . "\n\n";
+    $body .= "Email: " . $email . "\n\n";
+    $body .= "Subject: " . $subject . "\n\n";
+    $body .= "Message: " . $message . "\n\n";
 
     $headers = "From: info@eirecosan.ie\r\n"; 
     $headers .= "Reply-To: " . $email . "\r\n";
@@ -28,6 +29,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (mail($to, $subject, $body, $headers)) {
         http_response_code(200);
         echo json_encode(["status" => "success", "message" => "Thank you! Your message has been sent."]);
+        http_response_code(302);
+        header("Location: " . $redirect_url);
     } else {
         http_response_code(500);
         echo json_encode(["status" => "error", "message" => "Oops! Something went wrong and we couldn't send your message."]);
