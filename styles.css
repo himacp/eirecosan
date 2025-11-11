@@ -543,7 +543,7 @@
 
         /* --- Mission Box --- */
         .mission-section {
-            padding: 40px 0 80px;
+            padding: 40px 0 30px;
             text-align: center;
         }
         
@@ -584,8 +584,8 @@
         .values-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
-            gap: 30px;
-            text-align: left;
+            gap: 30px; 
+            text-align: center; /* Center align text within cards */
             max-width: 1100px; /* Limits the max width of the grid itself */
             margin: 0 auto; /* Centers the grid within the section */
             }
@@ -620,7 +620,8 @@
             height: 40px;
             display: flex;
             align-items: center;
-            justify-content: center;
+            justify-content: center; 
+            margin: 0 auto 15px; /* Center the icon circle within the card */
             margin-bottom: 15px;
         }
         
