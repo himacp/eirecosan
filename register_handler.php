@@ -16,7 +16,7 @@ require_once 'Mail/mime.php';
 
 // --- CONFIGURATION ---
 // EMAIL SETTINGS
-$recipient_email = "himacp2396@gmail.com"; 
+$recipient_email = "info@eirecosan.ie"; 
 $sender_email    = "info@eirecosan.ie";    
 $sender_name     = "EireCosan Registration Form"; // UPDATE APPLIED HERE
 $redirect_url    = "register.html"; // Redirect back to the form page

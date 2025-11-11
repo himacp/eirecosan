@@ -9,7 +9,7 @@ error_reporting(E_ALL);
 header("Access-Control-Allow-Origin: *");
 
 // --- CONFIGURATION ---
-$recipient_email = "bcgowtham17@gmail.com"; 
+$recipient_email = "roshyantonyp@gmail.com"; 
 $sender_email    = "info@eirecosan.ie";    
 $redirect_url    = "http://eirecosan.ie/contact-us.html"; 
 // Updated prefix to match your desired wording
